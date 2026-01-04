@@ -1,14 +1,26 @@
-export const addFavorite = async (req, res) => {
-  const exists = await Favorite.findOne({ productId: req.body.productId });
-  if (exists) return res.json(exists);
-  res.json(await Favorite.create(req.body));
-};
+import Favorite from "../models/Favorite.js";
 
 export const getFavorites = async (req, res) => {
-  res.json(await Favorite.find());
+  const favs = await Favorite.find().populate("productId");
+  res.json(favs);
 };
 
-export const deleteFavorite = async (req, res) => {
+export const addToFavorites = async (req, res) => {
+  const { productId } = req.body;
+
+  const exists = await Favorite.findOne({ productId });
+  if (exists) return res.json(exists);
+
+  const fav = await Favorite.create({ productId });
+  res.json(fav);
+};
+
+export const removeFromFavorites = async (req, res) => {
   await Favorite.findByIdAndDelete(req.params.id);
-  res.json({ message: "Removed" });
+  res.json({ success: true });
+};
+
+export const removeByProductId = async (req, res) => {
+  await Favorite.findOneAndDelete({ productId: req.params.productId });
+  res.json({ success: true });
 };
